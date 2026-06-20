@@ -1,0 +1,7 @@
+scopes:
+    - name: skills
+      description: AI skill definitions and configurations in skills/; does not cover agent logic or core CLI commands
+    - name: src
+      description: Core application logic, CLI, parsers, and agents in src/; does not cover integration skills or test suites
+    - name: tests
+      description: Validation and unit test suites for all components located in tests/; does not cover source code or build configuration
