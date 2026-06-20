@@ -2,10 +2,10 @@
 
 ## For Humans
 
-把这句话复制给你的 AI Agent：
+Copy and paste this message to your AI Agent:
 
 ```text
-帮我更新 Chatlog：https://raw.githubusercontent.com/Penn-Lam/chatlog/main/docs/update.md
+Help me update Chatlog：https://raw.githubusercontent.com/Penn-Lam/chatlog/main/docs/update.md
 ```
 
 ---

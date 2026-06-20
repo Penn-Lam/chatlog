@@ -2,13 +2,14 @@
 
 ## For Humans
 
-把这句话复制给你的 AI Agent：
+Copy and paste this message to your AI Agent:
 
-```text
-帮我安装 Chatlog：https://raw.githubusercontent.com/Penn-Lam/chatlog/main/docs/install.md
+```
+Please help me install Chatlog:
+https://raw.githubusercontent.com/Penn-Lam/chatlog/main/docs/install.md
 ```
 
-安装完成后，你可以直接把 ChatGPT、Gemini、DeepSeek 的公开分享链接发给 Agent，让它导出 JSON 或 Markdown。
+After the installation is complete, you can directly send public sharing links from ChatGPT, Gemini, or DeepSeek to the Agent, and it will export them as JSON or Markdown.
 
 ---
 
