@@ -1,6 +1,6 @@
-<p align="center">
+<div align="center">
   <img src="assets/logo.png" alt="Chatlog" width="640">
-</p>
+</div>
 
 <p align="center">
   把公开分享的 AI 对话导出为干净的 JSON 或 Markdown。

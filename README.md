@@ -1,6 +1,6 @@
-<p align="center">
+<div align="center">
   <img src="assets/logo.png" alt="Chatlog" width="640">
-</p>
+</div>
 
 <p align="center">
   Export shared AI conversations into clean JSON or Markdown.
