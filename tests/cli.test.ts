@@ -81,3 +81,51 @@ test("installs a bin shim into a custom directory", async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("check-update reports newer GitHub release", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const logs: string[] = [];
+
+  globalThis.fetch = (async () =>
+    new Response(JSON.stringify({
+      tag_name: "v0.2.0",
+      html_url: "https://github.com/Penn-Lam/chatlog/releases/tag/v0.2.0",
+      body: "Release notes",
+    }), { status: 200 })) as unknown as typeof fetch;
+  console.log = (...args: unknown[]) => {
+    logs.push(args.join(" "));
+  };
+
+  try {
+    await main(["check-update"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+  }
+
+  expect(logs.join("\n")).toContain("发现新版本：v0.2.0");
+  expect(logs.join("\n")).toContain("Release notes");
+});
+
+test("check-update falls back when no release exists", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const logs: string[] = [];
+
+  globalThis.fetch = (async () =>
+    new Response("not found", { status: 404 })) as unknown as typeof fetch;
+  console.log = (...args: unknown[]) => {
+    logs.push(args.join(" "));
+  };
+
+  try {
+    await main(["check-update"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+  }
+
+  expect(logs.join("\n")).toContain("尚未发现 GitHub release");
+  expect(logs.join("\n")).toContain("帮我更新 Chatlog");
+});

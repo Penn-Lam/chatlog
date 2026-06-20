@@ -111,6 +111,18 @@ bun run test
 bun run lint
 ```
 
+GitHub Actions 会运行同样的检查，并额外做一次 `chatlog` shim 安装后的 smoke test。
+
+## 版本管理
+
+Chatlog 以 `package.json` 作为唯一版本来源，在 `0.x` 阶段遵循语义化版本：
+
+- Patch 版本，例如 `0.1.1`，用于文档、兼容性和小修复。
+- Minor 版本，例如 `0.2.0`，用于新的 CLI 行为、解析器支持、安装流程变化或 skill 变化。
+- `1.0.0` 表示 CLI 和安装契约稳定。
+
+发布记录见 [CHANGELOG.md](CHANGELOG.md)。
+
 ## 设计说明
 
 这是一个聚焦的 CLI 项目，不是单次使用的自动化脚本。解析器采用平台插件结构，后续可以继续增加新的共享对话来源，同时保持导出格式和 CLI 工作流稳定。

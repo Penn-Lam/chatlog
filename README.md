@@ -109,6 +109,18 @@ bun run test
 bun run lint
 ```
 
+CI runs the same checks on GitHub Actions and includes a smoke test for the installed `chatlog` shim.
+
+## Versioning
+
+Chatlog uses `package.json` as the single version source and follows semantic versioning during the `0.x` line:
+
+- Patch releases, such as `0.1.1`, are for documentation, compatibility, and small fixes.
+- Minor releases, such as `0.2.0`, are for new CLI behavior, parser support, installation flow changes, or skill changes.
+- `1.0.0` will mark a stable CLI and installation contract.
+
+Release notes live in [CHANGELOG.md](CHANGELOG.md).
+
 ## Design
 
 Chatlog is a focused CLI, not a single-use automation script. Parsers follow a platform plugin structure, so support for additional shared-chat sources can be added without changing the export format or CLI workflow.

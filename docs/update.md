@@ -5,7 +5,7 @@
 Copy and paste this message to your AI Agent:
 
 ```text
-Help me update Chatlog：https://raw.githubusercontent.com/Penn-Lam/chatlog/main/docs/update.md
+Help me update Chatlog: https://raw.githubusercontent.com/Penn-Lam/chatlog/main/docs/update.md
 ```
 
 ---

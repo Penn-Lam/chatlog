@@ -149,8 +149,90 @@ async function runSkillCommand(options: Record<string, string | boolean>) {
 async function runCheckUpdate() {
   const version = await readPackageVersion();
   console.log(`当前版本：chatlog-exporter v${version}`);
-  console.log("如需更新，把这句话发给 Agent：");
-  console.log("帮我更新 Chatlog：https://raw.githubusercontent.com/Penn-Lam/chatlog/main/docs/update.md");
+
+  const updatePrompt =
+    "帮我更新 Chatlog：https://raw.githubusercontent.com/Penn-Lam/chatlog/main/docs/update.md";
+
+  try {
+    const response = await fetch(
+      "https://api.github.com/repos/Penn-Lam/chatlog/releases/latest",
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "User-Agent": "chatlog-exporter",
+        },
+      },
+    );
+
+    if (response.status === 404) {
+      console.log("尚未发现 GitHub release。");
+      console.log("如需更新，把这句话发给 Agent：");
+      console.log(updatePrompt);
+      return;
+    }
+
+    if (!response.ok) {
+      console.log(`无法检查远程版本：GitHub API HTTP ${response.status}`);
+      console.log("如需更新，把这句话发给 Agent：");
+      console.log(updatePrompt);
+      return;
+    }
+
+    const data = await response.json() as {
+      tag_name?: string;
+      html_url?: string;
+      body?: string;
+    };
+    const latest = normalizeVersion(data.tag_name ?? "");
+    if (!latest) {
+      console.log("GitHub latest release 未包含有效版本号。");
+      console.log("如需更新，把这句话发给 Agent：");
+      console.log(updatePrompt);
+      return;
+    }
+
+    if (compareVersions(latest, version) > 0) {
+      console.log(`发现新版本：v${latest}`);
+      if (data.html_url) {
+        console.log(`Release: ${data.html_url}`);
+      }
+      const notes = data.body?.trim().split("\n").slice(0, 8).join("\n");
+      if (notes) {
+        console.log("");
+        console.log(notes);
+      }
+      console.log("");
+      console.log("如需更新，把这句话发给 Agent：");
+      console.log(updatePrompt);
+      return;
+    }
+
+    console.log(`已是最新版本：v${version}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`无法检查远程版本：${message}`);
+    console.log("如需更新，把这句话发给 Agent：");
+    console.log(updatePrompt);
+  }
+}
+
+function normalizeVersion(version: string): string {
+  return version.trim().replace(/^v/i, "");
+}
+
+function compareVersions(a: string, b: string): number {
+  const left = normalizeVersion(a).split(".").map((part) => Number.parseInt(part, 10));
+  const right = normalizeVersion(b).split(".").map((part) => Number.parseInt(part, 10));
+  const length = Math.max(left.length, right.length);
+
+  for (let index = 0; index < length; index += 1) {
+    const leftPart = Number.isFinite(left[index]) ? left[index] : 0;
+    const rightPart = Number.isFinite(right[index]) ? right[index] : 0;
+    if (leftPart > rightPart) return 1;
+    if (leftPart < rightPart) return -1;
+  }
+
+  return 0;
 }
 
 export async function main(argv: string[]): Promise<void> {
