@@ -1,0 +1,15 @@
+node_modules/
+exports/
+.DS_Store
+
+# Build and coverage output
+dist/
+coverage/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log

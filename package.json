@@ -1,0 +1,21 @@
+{
+  "name": "chatlog-exporter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "chatlog": "./src/cli.ts"
+  },
+  "scripts": {
+    "chatlog": "bun src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "test:file": "bun test",
+    "lint": "bunx tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20.19.0",
+    "typescript": "^5.8.3"
+  }
+}
