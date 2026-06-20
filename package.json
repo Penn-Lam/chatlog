@@ -2,6 +2,7 @@
   "name": "chatlog-exporter",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "bin": {
     "chatlog": "./src/cli.ts"
