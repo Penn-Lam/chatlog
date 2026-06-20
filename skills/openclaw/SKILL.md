@@ -20,14 +20,15 @@ to enable the coding tools profile and restart the gateway.
 
 1. Use `bun`, not `npm`.
 2. Keep output under `exports/` unless the user gives a path.
-3. Run `bun src/cli.ts doctor` after installation and when an export fails.
+3. Run `chatlog doctor` after installation and when an export fails.
 
 ## Commands
 
 ```sh
-bun src/cli.ts export "https://chatgpt.com/share/..." --format md --export
-bun src/cli.ts export "https://gemini.google.com/share/..." --out ./exports/gemini.json
-bun src/cli.ts export "https://chat.deepseek.com/share/..." --format md
+chatlog export "https://chatgpt.com/share/..." --format md --export
+chatlog export "https://gemini.google.com/share/..." --export-dir ./plans
+chatlog export "https://gemini.google.com/share/..." --out ./exports/gemini.json
+chatlog export "https://chat.deepseek.com/share/..." --format md
 ```
 
 Install:

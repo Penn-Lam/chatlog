@@ -1,8 +1,10 @@
 import { access, readFile } from "node:fs/promises";
 import { constants, existsSync } from "node:fs";
-import { join } from "node:path";
+import { delimiter } from "node:path";
+import { basename, join } from "node:path";
 import { parsers } from "../parsers";
 import { allAgentTargets } from "./paths";
+import { appRoot } from "./runtime";
 
 export type DoctorStatus = "ok" | "warn" | "error";
 
@@ -19,8 +21,8 @@ export interface DoctorReport {
   checks: DoctorCheck[];
 }
 
-async function readPackageVersion(cwd = process.cwd()): Promise<string> {
-  const text = await readFile(join(cwd, "package.json"), "utf8");
+async function readPackageVersion(root = appRoot()): Promise<string> {
+  const text = await readFile(join(root, "package.json"), "utf8");
   const parsed = JSON.parse(text) as { version?: string };
   return parsed.version ?? "unknown";
 }
@@ -36,13 +38,24 @@ async function canWrite(path: string): Promise<boolean> {
 
 export async function runDoctor(cwd = process.cwd()): Promise<DoctorReport> {
   const checks: DoctorCheck[] = [];
-  const version = await readPackageVersion(cwd);
+  const root = appRoot();
+  const version = await readPackageVersion(root);
 
   checks.push({
     id: "runtime",
     label: "Bun runtime",
     status: typeof Bun.version === "string" ? "ok" : "error",
     message: typeof Bun.version === "string" ? `Bun ${Bun.version}` : "未检测到 Bun",
+  });
+
+  const executable = findOnPath("chatlog");
+  checks.push({
+    id: "command",
+    label: "Global command",
+    status: executable ? "ok" : "warn",
+    message: executable
+      ? `chatlog 可用：${executable}`
+      : "未在 PATH 中找到 chatlog；可在仓库内运行 bun src/cli.ts install-bin",
   });
 
   checks.push({
@@ -63,7 +76,7 @@ export async function runDoctor(cwd = process.cwd()): Promise<DoctorReport> {
   });
 
   const skillTemplates = allAgentTargets().filter((target) =>
-    existsSync(join(cwd, "skills", target.id, "SKILL.md")),
+    existsSync(join(root, "skills", target.id, "SKILL.md")),
   );
   checks.push({
     id: "skill-templates",
@@ -93,6 +106,20 @@ export async function runDoctor(cwd = process.cwd()): Promise<DoctorReport> {
   };
 }
 
+function findOnPath(command: string): string | undefined {
+  const pathEnv = process.env.PATH ?? "";
+  const suffixes = process.platform === "win32" ? ["", ".cmd", ".exe", ".bat"] : [""];
+  for (const dir of pathEnv.split(delimiter)) {
+    for (const suffix of suffixes) {
+      const candidate = join(dir, `${command}${suffix}`);
+      if (basename(candidate) && existsSync(candidate)) {
+        return candidate;
+      }
+    }
+  }
+  return undefined;
+}
+
 function icon(status: DoctorStatus) {
   if (status === "ok") return "OK";
   if (status === "warn") return "WARN";
@@ -114,4 +141,3 @@ export function formatDoctorReport(report: DoctorReport): string {
   lines.push(`状态：${ok}/${report.checks.length} 项通过`);
   return lines.join("\n");
 }
-

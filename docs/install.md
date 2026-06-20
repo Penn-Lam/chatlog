@@ -28,11 +28,17 @@ Install Chatlog, verify it works, and register the matching agent skill so futur
 
 ### Step 1: Get the project
 
-If Chatlog is already available locally, use that directory. Otherwise clone it from GitHub into a neutral tools directory outside the user's active project workspace.
+Install Chatlog into a stable user-level tools directory, outside the user's active project workspace.
 
 ```sh
-git clone https://github.com/Penn-Lam/chatlog.git chatlog
-cd chatlog
+CHATLOG_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/chatlog"
+mkdir -p "$(dirname "$CHATLOG_HOME")"
+if [ -d "$CHATLOG_HOME/.git" ]; then
+  git -C "$CHATLOG_HOME" pull --ff-only
+else
+  git clone https://github.com/Penn-Lam/chatlog.git "$CHATLOG_HOME"
+fi
+cd "$CHATLOG_HOME"
 ```
 
 ### Step 2: Install dependencies
@@ -43,27 +49,35 @@ bun run typecheck
 bun run test
 ```
 
-### Step 3: Register agent skill
+### Step 3: Install the global command
+
+```sh
+bun src/cli.ts install-bin
+```
+
+This creates `~/.local/bin/chatlog`. If `chatlog` is not found afterwards, add `~/.local/bin` to the user's `PATH`.
+
+### Step 4: Register agent skill
 
 Pick the current agent when known:
 
 ```sh
-bun src/cli.ts skill --install --agent codex
-bun src/cli.ts skill --install --agent claude-code
-bun src/cli.ts skill --install --agent cursor
-bun src/cli.ts skill --install --agent openclaw
+chatlog skill --install --agent codex
+chatlog skill --install --agent claude-code
+chatlog skill --install --agent cursor
+chatlog skill --install --agent openclaw
 ```
 
 If unsure, try auto mode. It installs into detected existing skill directories:
 
 ```sh
-bun src/cli.ts skill --install --agent auto
+chatlog skill --install --agent auto
 ```
 
-### Step 4: Verify
+### Step 5: Verify
 
 ```sh
-bun src/cli.ts doctor
+chatlog doctor
 ```
 
 Expected result: Bun runtime, supported parsers, and skill templates should be OK. Installed agent skills should be OK after Step 3.
@@ -71,9 +85,10 @@ Expected result: Bun runtime, supported parsers, and skill templates should be O
 ### Quick Reference
 
 ```sh
-bun src/cli.ts export "https://chatgpt.com/share/..." --format md
-bun src/cli.ts export "https://gemini.google.com/share/..." --export
-bun src/cli.ts export "https://chat.deepseek.com/share/..." --out ./exports/chat.json
-bun src/cli.ts doctor
-bun src/cli.ts check-update
+chatlog export "https://chatgpt.com/share/..." --format md
+chatlog export "https://gemini.google.com/share/..." --export
+chatlog export "https://chat.deepseek.com/share/..." --export-dir ./plans
+chatlog export "https://chat.deepseek.com/share/..." --out ./exports/chat.json
+chatlog doctor
+chatlog check-update
 ```

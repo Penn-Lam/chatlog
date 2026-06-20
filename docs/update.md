@@ -28,7 +28,8 @@ Update Chatlog, refresh dependencies, re-register agent skills, and verify the e
 Use the existing Chatlog directory if the user has one. If the current directory is the Chatlog repository, stay there.
 
 ```sh
-pwd
+CHATLOG_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/chatlog"
+cd "$CHATLOG_HOME"
 ```
 
 ### Step 2: Update source
@@ -47,6 +48,7 @@ If there are local changes, inspect them first and avoid overwriting user work.
 bun install
 bun run typecheck
 bun run test
+bun src/cli.ts install-bin
 ```
 
 ### Step 4: Reinstall skill
@@ -54,20 +56,20 @@ bun run test
 Use the current agent when known:
 
 ```sh
-bun src/cli.ts skill --install --agent codex
+chatlog skill --install --agent codex
 ```
 
 Or auto-detect existing skill directories:
 
 ```sh
-bun src/cli.ts skill --install --agent auto
+chatlog skill --install --agent auto
 ```
 
 ### Step 5: Verify and report
 
 ```sh
-bun src/cli.ts version
-bun src/cli.ts doctor
+chatlog version
+chatlog doctor
 ```
 
 Tell the user:

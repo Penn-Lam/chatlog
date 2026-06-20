@@ -16,16 +16,17 @@ Use Chatlog to export public AI chat-share pages.
 
 1. Use `bun`, not `npm`.
 2. Keep generated exports in `exports/` unless the user specifies another path.
-3. Run `bun src/cli.ts doctor` after install/update or when diagnosing failures.
+3. Run `chatlog doctor` after install/update or when diagnosing failures.
 4. Use `--insecure` only for local certificate problems.
 
 ## Commands
 
 ```sh
-bun src/cli.ts export "https://chatgpt.com/share/..." --format md --export
-bun src/cli.ts export "https://gemini.google.com/share/..." --out ./exports/gemini.json
-bun src/cli.ts export "https://chat.deepseek.com/share/..." --format md
-bun src/cli.ts doctor
+chatlog export "https://chatgpt.com/share/..." --format md --export
+chatlog export "https://gemini.google.com/share/..." --export-dir ./plans
+chatlog export "https://gemini.google.com/share/..." --out ./exports/gemini.json
+chatlog export "https://chat.deepseek.com/share/..." --format md
+chatlog doctor
 ```
 
 Install:

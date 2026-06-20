@@ -38,24 +38,26 @@ Chatlog 解决的是这两者之间的断层。
 ## 使用
 
 ```sh
-bun src/cli.ts export "https://chatgpt.com/share/..."
-bun src/cli.ts export "https://chatgpt.com/share/..." --format md
-bun src/cli.ts export "https://chatgpt.com/share/..." --export
-bun src/cli.ts export "https://chatgpt.com/share/..." --out ./exports/chat.json
-bun src/cli.ts export "https://chat.deepseek.com/share/..."
-bun src/cli.ts export "https://gemini.google.com/share/..."
-bun src/cli.ts export ./chatgpt-share.html
+chatlog export "https://chatgpt.com/share/..."
+chatlog export "https://chatgpt.com/share/..." --format md
+chatlog export "https://chatgpt.com/share/..." --export
+chatlog export "https://chatgpt.com/share/..." --export-dir ./plans
+chatlog export "https://chatgpt.com/share/..." --out ./exports/chat.json
+chatlog export "https://chat.deepseek.com/share/..."
+chatlog export "https://gemini.google.com/share/..."
+chatlog export ./chatgpt-share.html
 ```
 
 默认行为是直接打印到终端。只有传入 `--out` 或 `--export` 时才会写文件：
 
 - `--out ./path/file.json`：写入指定文件
 - `--export`：写入默认路径 `exports/<platform>-<share-id>.<format>`
+- `--export-dir ./plans`：写入自定义默认导出目录
 
 如果本机遇到证书校验异常，可以使用：
 
 ```sh
-bun src/cli.ts export "https://chatgpt.com/share/..." --out ./exports/chat.json --insecure
+chatlog export "https://chatgpt.com/share/..." --out ./exports/chat.json --insecure
 ```
 
 `--insecure` 会调用 `curl -k` 抓取页面，仅建议在本机证书环境异常时使用。
@@ -65,12 +67,12 @@ bun src/cli.ts export "https://chatgpt.com/share/..." --out ./exports/chat.json 
 Chatlog 提供了不同 Agent 的 `SKILL.md` 模板。安装后，Agent 在遇到 ChatGPT、Gemini、DeepSeek 分享链接时，会优先调用 Chatlog 导出结构化记录。
 
 ```sh
-bun src/cli.ts doctor
-bun src/cli.ts skill --install --agent codex
-bun src/cli.ts skill --install --agent claude-code
-bun src/cli.ts skill --install --agent cursor
-bun src/cli.ts skill --install --agent openclaw
-bun src/cli.ts check-update
+chatlog doctor
+chatlog skill --install --agent codex
+chatlog skill --install --agent claude-code
+chatlog skill --install --agent cursor
+chatlog skill --install --agent openclaw
+chatlog check-update
 ```
 
 给人类复制给 Agent 的文档：

@@ -1,7 +1,9 @@
 #!/usr/bin/env bun
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { formatDoctorReport, runDoctor } from "./agent/doctor";
+import { appRoot } from "./agent/runtime";
 import { installSkills, uninstallSkills } from "./agent/skill";
 import { createExport, formatExport, inferFormat } from "./format";
 import { findParser } from "./parsers";
@@ -16,7 +18,9 @@ const HELP_TEXT = `chatlog - 聊天记录导出 CLI
   chatlog export <share-url> --format md
   chatlog export <share-url> --export
   chatlog export <share-url> --out ./chat.json
+  chatlog export <share-url> --export-dir ./plans
   chatlog doctor
+  chatlog install-bin
   chatlog skill --install --agent codex
   chatlog skill --uninstall --agent codex
   chatlog version
@@ -25,16 +29,23 @@ const HELP_TEXT = `chatlog - 聊天记录导出 CLI
 参数:
   --out        输出文件路径；显式传入时写文件
   --export     写入默认 exports/<platform>-<share-id>.<format>；不传 --out 时生效
+  --export-dir 默认导出目录；会隐式启用 --export，默认 exports
   --format     json 或 md；默认根据 --out 后缀推断，缺省为 json
+  --bin-dir    install-bin 的目标目录，默认 ~/.local/bin
   --insecure   URL 抓取时使用 curl -k，适合本机证书校验异常
   --agent      skill 目标：auto、codex、claude-code、cursor、openclaw
   --json       doctor 输出 JSON
   --help       显示帮助`;
 
-function defaultOutputPath(input: string, platform: string, format: "json" | "md") {
+function defaultOutputPath(
+  input: string,
+  platform: string,
+  format: "json" | "md",
+  exportDir = "exports",
+) {
   const parsedUrl = parseSourceUrl(input);
   const id = parsedUrl?.shareId ?? new Date().toISOString().replace(/[:.]/g, "-");
-  return join("exports", `${platform}-${id}.${format}`);
+  return join(exportDir, `${platform}-${id}.${format}`);
 }
 
 async function runExport(
@@ -46,6 +57,7 @@ async function runExport(
   }
 
   const outPath = getStringOption(options, "out");
+  const exportDir = getStringOption(options, "export-dir");
   const format = inferFormat(getStringOption(options, "format"), outPath);
   const loaded = await loadSource(input, {
     insecure: getBooleanOption(options, "insecure"),
@@ -54,9 +66,11 @@ async function runExport(
   const messages = parser.parse(loaded.payload);
   const data = createExport(loaded.source, parser.platform, messages);
   const output = formatExport(data, format);
-  const shouldExport = getBooleanOption(options, "export");
+  const shouldExport = getBooleanOption(options, "export") || Boolean(exportDir);
   const resolvedOutPath =
-    outPath ?? (shouldExport ? defaultOutputPath(input, parser.platform, format) : undefined);
+    outPath ?? (shouldExport
+      ? defaultOutputPath(input, parser.platform, format, exportDir ?? "exports")
+      : undefined);
 
   if (!resolvedOutPath) {
     process.stdout.write(output);
@@ -69,9 +83,30 @@ async function runExport(
 }
 
 async function readPackageVersion(): Promise<string> {
-  const text = await readFile("package.json", "utf8");
+  const text = await readFile(join(appRoot(), "package.json"), "utf8");
   const parsed = JSON.parse(text) as { version?: string };
   return parsed.version ?? "unknown";
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+async function runInstallBin(options: Record<string, string | boolean>) {
+  const binDir = getStringOption(options, "bin-dir") ?? join(homedir(), ".local", "bin");
+  const target = join(binDir, "chatlog");
+  const cliPath = join(appRoot(), "src", "cli.ts");
+  const script = [
+    "#!/usr/bin/env sh",
+    `exec bun ${shellQuote(cliPath)} "$@"`,
+    "",
+  ].join("\n");
+
+  await mkdir(binDir, { recursive: true });
+  await writeFile(target, script, "utf8");
+  await chmod(target, 0o755);
+  console.log(`已安装 chatlog 命令：${target}`);
+  console.log("如果当前 shell 找不到该命令，请确认目录已加入 PATH。");
 }
 
 async function runVersion() {
@@ -137,6 +172,11 @@ export async function main(argv: string[]): Promise<void> {
 
   if (command === "doctor") {
     await runDoctorCommand(parsed.options);
+    return;
+  }
+
+  if (command === "install-bin") {
+    await runInstallBin(parsed.options);
     return;
   }
 

@@ -36,24 +36,26 @@ In short: use the Pro model for the planning conversation, then let Codex see th
 ## Usage
 
 ```sh
-bun src/cli.ts export "https://chatgpt.com/share/..."
-bun src/cli.ts export "https://chatgpt.com/share/..." --format md
-bun src/cli.ts export "https://chatgpt.com/share/..." --export
-bun src/cli.ts export "https://chatgpt.com/share/..." --out ./exports/chat.json
-bun src/cli.ts export "https://chat.deepseek.com/share/..."
-bun src/cli.ts export "https://gemini.google.com/share/..."
-bun src/cli.ts export ./chatgpt-share.html
+chatlog export "https://chatgpt.com/share/..."
+chatlog export "https://chatgpt.com/share/..." --format md
+chatlog export "https://chatgpt.com/share/..." --export
+chatlog export "https://chatgpt.com/share/..." --export-dir ./plans
+chatlog export "https://chatgpt.com/share/..." --out ./exports/chat.json
+chatlog export "https://chat.deepseek.com/share/..."
+chatlog export "https://gemini.google.com/share/..."
+chatlog export ./chatgpt-share.html
 ```
 
 By default, Chatlog prints the result to stdout. It only writes files when `--out` or `--export` is provided:
 
 - `--out ./path/file.json`: write to an explicit file path
 - `--export`: write to `exports/<platform>-<share-id>.<format>`
+- `--export-dir ./plans`: write to a custom default export directory
 
 If your local certificate setup breaks page fetching, use:
 
 ```sh
-bun src/cli.ts export "https://chatgpt.com/share/..." --out ./exports/chat.json --insecure
+chatlog export "https://chatgpt.com/share/..." --out ./exports/chat.json --insecure
 ```
 
 `--insecure` uses `curl -k` and should only be used for local certificate problems.
@@ -63,12 +65,12 @@ bun src/cli.ts export "https://chatgpt.com/share/..." --out ./exports/chat.json 
 Chatlog includes skill templates so coding agents can install, update, diagnose, and call the exporter without the user memorizing commands.
 
 ```sh
-bun src/cli.ts doctor
-bun src/cli.ts skill --install --agent codex
-bun src/cli.ts skill --install --agent claude-code
-bun src/cli.ts skill --install --agent cursor
-bun src/cli.ts skill --install --agent openclaw
-bun src/cli.ts check-update
+chatlog doctor
+chatlog skill --install --agent codex
+chatlog skill --install --agent claude-code
+chatlog skill --install --agent cursor
+chatlog skill --install --agent openclaw
+chatlog check-update
 ```
 
 Human-facing agent guides:

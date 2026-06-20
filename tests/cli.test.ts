@@ -50,3 +50,34 @@ test("exports to a default file only when --export is set", async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("exports to custom directory when --export-dir is set", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "chatlog-cli-"));
+  const input = join(dir, "chat.html");
+  await Bun.write(input, chatgptHtml);
+  const oldCwd = process.cwd();
+
+  try {
+    process.chdir(dir);
+    await main(["export", input, "--export-dir", "plans"]);
+    const files = Array.from(new Bun.Glob("plans/*.json").scanSync("."));
+    expect(files).toHaveLength(1);
+    expect(existsSync(join(dir, files[0]))).toBe(true);
+  } finally {
+    process.chdir(oldCwd);
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("installs a bin shim into a custom directory", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "chatlog-bin-"));
+
+  try {
+    await main(["install-bin", "--bin-dir", dir]);
+    const target = join(dir, "chatlog");
+    expect(existsSync(target)).toBe(true);
+    expect(await Bun.file(target).text()).toContain("exec bun");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

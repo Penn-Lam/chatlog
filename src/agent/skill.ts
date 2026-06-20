@@ -1,6 +1,7 @@
 import { cp, mkdir, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join } from "node:path";
+import { appRoot } from "./runtime";
 import {
   allAgentTargets,
   findAgentTarget,
@@ -22,12 +23,8 @@ export interface SkillOptions {
   cwd?: string;
 }
 
-function projectRoot(cwd = process.cwd()) {
-  return resolve(cwd);
-}
-
 function skillSourceDir(agent: AgentId, cwd?: string) {
-  return join(projectRoot(cwd), "skills", agent);
+  return join(cwd ?? appRoot(), "skills", agent);
 }
 
 function resolveTargets(options: SkillOptions = {}): AgentSkillTarget[] {
@@ -103,4 +100,3 @@ export async function uninstallSkills(options: SkillOptions = {}): Promise<Skill
 
   return changes;
 }
-
